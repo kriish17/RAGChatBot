@@ -1,10 +1,10 @@
 import os
 import streamlit as st
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 # ========================
 # Page Config
@@ -106,7 +106,7 @@ if uploaded_file:
         vectorstore = FAISS.from_documents(chunks, embeddings)
 
         # Initialize Groq LLM
-        llm = ChatGroq(groq_api_key=GROQ_API_KEY, model_name="llama3-8b-8192")
+        llm = ChatGroq(groq_api_key=GROQ_API_KEY, model_name="llama-3.1-8b-instant")
 
         st.success("✅ PDF processed successfully! Start chatting below.")
 
@@ -123,7 +123,7 @@ if uploaded_file:
 
             # Retrieve relevant docs
             retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
-            docs = retriever.get_relevant_documents(user_input)
+            docs = retriever.invoke(user_input)
             context = "\n\n".join([doc.page_content for doc in docs])
             prompt = f"Answer based only on the context below:\n\n{context}\n\nQuestion: {user_input}"
 
